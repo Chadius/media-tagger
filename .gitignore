@@ -3,3 +3,6 @@
 
 # virtualenv files should be ignored
 venv/
+
+# scrap directory should be ignored
+scrap/
