@@ -1,19 +1,16 @@
 #:kivy 1.10.1
 
 <TitleScreen>:
-    canvas:
-        Rectangle:
-            pos: self.center_x - 5, 0
-            size: 10, self.height
-
-    Label:
-        font_size: 70
-        center_x: root.width / 4
-        top: root.top - 50
-        text: "0"
-
-    Label:
-        font_size: 70
-        center_x: root.width * 3 / 4
-        top: root.top - 50
-        text: "0"
+    BoxLayout:
+        pos_hint: {'x':0.1, 'top':0.5}
+        size_hint: 0.8, 0.5
+        orientation: 'vertical'
+        Button:
+            text: '0'
+            center_x: root.width * 1 / 4
+        Button:
+            text: '1'
+            center_x: root.width * 2 / 4
+        Button:
+            text: '2'
+            center_x: root.width * 3 / 4
