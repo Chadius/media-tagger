@@ -1,6 +1,45 @@
 #:kivy 1.10.1
 
 <TitleScreen>:
+    canvas.before:
+        Color:
+            rgba: 0, 1, 0, 0.1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    BoxLayout:
+        pos_hint: {'x':0.05, 'top':0.95}
+        size_hint: 0.9, 0.9
+        orientation: 'vertical'
+        Label:
+            text: 'Title'
+            font_size: 0.6*self.height
+            size_hint: 1.0, 0.25
+        Label:
+            text: ''
+            size_hint: 1.0, 0.50
+        FloatLayout:
+            size_hint: 1.0, 0.25
+            orientation: 'horizontal'
+            Button:
+                text: 'Start Game'
+                pos_hint: {'x': 0.75, 'center_y': 0.5}
+                size_hint: 0.20, 0.5
+<TitleScreen2>:
+    BoxLayout:
+        pos_hint: {'x':0.1, 'top':0.5}
+        size_hint: 0.8, 0.5
+        orientation: 'vertical'
+        Button:
+            text: '0'
+            center_x: root.width * 1 / 4
+        Button:
+            text: '1'
+            center_x: root.width * 2 / 4
+        Button:
+            text: '2'
+            center_x: root.width * 3 / 4
+<TitleScreen3>:
     BoxLayout:
         pos_hint: {'x':0.1, 'top':0.5}
         size_hint: 0.8, 0.5
