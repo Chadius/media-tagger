@@ -34,7 +34,6 @@ class MainWindow(FloatLayout):
 
         if verb in function_by_verb:
             function_by_verb[verb](**kwargs)
-        pass
 
     def add_new_screen(self, **kwargs):
         """Creates and adds a new game screen.
@@ -42,8 +41,6 @@ class MainWindow(FloatLayout):
         screen_name - String referring to the name of the screen.
         """
         screen_name = kwargs["screen_name"]
-
-        print ("Add new game screen " + screen_name)
 
         screen_class_by_name = {
             "title": TitleScreen,
@@ -54,17 +51,14 @@ class MainWindow(FloatLayout):
             new_screen = screen_class_by_name[screen_name]()
             self.add_widget(new_screen)
 
-    def close_screen(self, screen_name, **kwargs):
-        print ("Close game screen " + screen_name)
-
-        screen_class_by_name = {
-            "title": TitleScreen,
-            "game": GameScreen,
-        }
-
-        pass
+    def close_screen(self, **kwargs):
+        widget_to_close = kwargs["screen_widget"]
+        self.remove_widget(widget_to_close)
 
 class TitleScreen(FloatLayout):
+    def __init__(self, *args, **kwargs):
+        super().__init__(**kwargs)
+
     def switch_to_game_screen(self):
         """Close this widget and open the Game Screen.
         """
@@ -72,14 +66,20 @@ class TitleScreen(FloatLayout):
         # Ask the parent to open the GameScreen.
         self.parent.command("add", screen_name="game")
         # Ask the parent to close this widget.
-        # self.parent.command("close", "title")
-        pass
+        self.parent.command("close", screen_widget=self)
 
 class GameScreen(FloatLayout):
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
-        print ("I'm a Game Screen!")
-        pass
+
+    def switch_to_title_screen(self):
+        """Close this widget and open the Title Screen.
+        """
+
+        # Ask the parent to open the TitleScreen.
+        self.parent.command("add", screen_name="title")
+        # Ask the parent to close this widget.
+        self.parent.command("close", screen_widget=self)
 
 class UISwitcherApp(App):
     def build(self):

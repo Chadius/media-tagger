@@ -47,17 +47,4 @@
                 text: 'Back to Title'
                 pos_hint: {'x': 0.75, 'center_y': 0.5}
                 size_hint: 0.20, 0.5
-<TitleScreen3>:
-    BoxLayout:
-        pos_hint: {'x':0.1, 'top':0.5}
-        size_hint: 0.8, 0.5
-        orientation: 'vertical'
-        Button:
-            text: '0'
-            center_x: root.width * 1 / 4
-        Button:
-            text: '1'
-            center_x: root.width * 2 / 4
-        Button:
-            text: '2'
-            center_x: root.width * 3 / 4
+                on_release: root.switch_to_title_screen()
