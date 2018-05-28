@@ -6,6 +6,7 @@ from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.uix.floatlayout import FloatLayout
 from kivy.clock import Clock
+from kivy.uix.screenmanager import FadeTransition
 from kivy.uix.screenmanager import Screen
 from kivy.uix.screenmanager import ScreenManager
 
@@ -33,18 +34,6 @@ class Command(object):
 class MainWindow(ScreenManager):
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
-        # Add a callback to switch to the title screen when the system finishes initializing
-        Clock.schedule_once(partial(MainWindow.init_go_to_title_screen, self), 0.0)
-
-    def init_go_to_title_screen(self, dt):
-        """Switch to the title screen once the system has initialized.
-        """
-        # Add a TitleScreen.
-        title_screen = TitleScreen()
-        self.add_widget(title_screen)
-
-    def callback_switch_to_title(self, dt):
-        self.switch_to_title()
 
     def command(self, verb, **kwargs):
         """An API to send commands to the controller.
@@ -53,10 +42,17 @@ class MainWindow(ScreenManager):
         function_by_verb = {
             "add": self.add_new_screen,
             "close": self.close_screen,
+            "switch": self.switch_screen,
         }
 
         if verb in function_by_verb:
             function_by_verb[verb](**kwargs)
+
+    def switch_screen(self, **kwargs):
+        """Switches to an already existing screen.
+        """
+        self.current = kwargs["screen_name"]
+        pass
 
     def add_new_screen(self, **kwargs):
         """Creates and adds a new game screen.
@@ -93,10 +89,8 @@ class TitleScreen(Screen):
         """Close this widget and open the Game Screen.
         """
 
-        # Ask the parent to open the GameScreen.
-        self.parent.command("add", screen_name="game")
-        # Ask the parent to close this widget.
-        self.parent.command("close", screen_widget=self)
+        # Ask the parent to switch to the Game screen
+        self.parent.command("switch", screen_name="game_screen")
 
 class GameScreen(Screen):
     def __init__(self, *args, **kwargs):
@@ -106,15 +100,12 @@ class GameScreen(Screen):
         """Close this widget and open the Title Screen.
         """
 
-        # Ask the parent to open the TitleScreen.
-        self.parent.command("add", screen_name="title")
-        # Ask the parent to close this widget.
-        self.parent.command("close", screen_widget=self)
-
+        # Ask the parent to switch to the Game screen
+        self.parent.command("switch", screen_name="title_screen")
 
 class UISwitcherApp(App):
     def build(self):
-        screen_manager = MainWindow()
+        screen_manager = MainWindow(transition=FadeTransition())
         screen_manager.add_widget(TitleScreen(name="title_screen"))
         screen_manager.add_widget(GameScreen(name="game_screen"))
         screen_manager.current = 'title_screen'
