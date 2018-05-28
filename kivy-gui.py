@@ -18,8 +18,10 @@ class Command(object):
         super().__init__(self, args, kwargs)
         # Track the object that will act.
         self.actor = None
+        # Did the actor start executing?
+        self.is_started_execution = False
         # Did the actor finish executing?
-        self.completed_acting = False
+        self.is_finished_execution = False
 
     def execute(self):
         """Perform the command on the actor.
@@ -34,6 +36,51 @@ class Command(object):
 class MainWindow(ScreenManager):
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
+
+        # A list of Command objects
+        self.command_queue = []
+        # The last completed queue
+
+    def add_command(self, new_command):
+        """Adds a Command to the queue.
+        """
+        self.command_queue.append(new_command)
+
+    def process_commands(self):
+        """Tries to process commands.
+        """
+        # If the queue is empty, return
+        if len(self.command_queue) == 0:
+            return
+
+        # If the first Command is still executing, return later.
+        current_command = self.command_queue[0]
+
+        if current_command.is_started_execution and not current_command.is_finished_execution:
+            return
+
+        # If the first Command has finished executing, remove it from the queue now.
+        if current_command.is_started_execution and not current_command.is_finished_execution:
+            self.command_queue.pop(0)
+        # Process through the commands.
+        commands_to_remove = []
+        for command in self.command_queue:
+            # Process known Commands.
+            # TODO
+
+            # If a Command is still executing, stop processing commands and return.
+            if not command.is_finished_execution:
+                break
+
+            # If the process completed, remove it from the queue.
+            if command.is_finished_execution:
+                commands_to_remove.append(command)
+
+            # If the command wasn't started, then we don't recognize this command. Raise an Error.
+            # TODO
+        # Remove all commands marked for removal.
+        for command in commands_to_remove:
+            self.command_queue.remove(command)
 
     def command(self, verb, **kwargs):
         """An API to send commands to the controller.
