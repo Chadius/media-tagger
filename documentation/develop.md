@@ -1,8 +1,26 @@
-# Python3
-
-
-# pygame
-https://www.pygame.org/wiki/GettingStarted
-python3 -m pip install -U pygame
-
-Note: If you're on the Mac and you like virtual environments, use venv instead of virtualenv. Otherwise you will be unable to type anything.
+# Managing Widgets
+TODO
+## Animate Widgets
+TODO
+### Fade Out
+TODO
+### Fade In
+TODO
+### Scroll Widget
+TODO
+### Responsive Position and Shape
+TODO
+## Change Widgets
+TODO
+### Add widget
+TODO
+### Remove widget
+TODO
+### Focus Widget
+TODO
+## ID and Class management
+TODO
+## Generate Kivy ID, given Prefix
+TODO
+## Use CSS-like id
+TODO

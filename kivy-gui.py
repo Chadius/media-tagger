@@ -6,8 +6,31 @@ from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.uix.floatlayout import FloatLayout
 from kivy.clock import Clock
+from kivy.uix.screenmanager import Screen
+from kivy.uix.screenmanager import ScreenManager
 
-class MainWindow(FloatLayout):
+class Command(object):
+    """Encapsulate an request that acts upon an object.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(self, args, kwargs)
+        # Track the object that will act.
+        self.actor = None
+        # Did the actor finish executing?
+        self.completed_acting = False
+
+    def execute(self):
+        """Perform the command on the actor.
+        """
+        pass
+
+    def undo(self):
+        """Reverse the effects of the execute command.
+        """
+        pass
+
+class MainWindow(ScreenManager):
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
         # Add a callback to switch to the title screen when the system finishes initializing
@@ -55,7 +78,14 @@ class MainWindow(FloatLayout):
         widget_to_close = kwargs["screen_widget"]
         self.remove_widget(widget_to_close)
 
-class TitleScreen(FloatLayout):
+
+    def update(self, dt):
+        """Tries to execute periodically.
+        dt = The amount of time.
+        """
+        pass
+
+class TitleScreen(Screen):
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
 
@@ -68,7 +98,7 @@ class TitleScreen(FloatLayout):
         # Ask the parent to close this widget.
         self.parent.command("close", screen_widget=self)
 
-class GameScreen(FloatLayout):
+class GameScreen(Screen):
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
 
@@ -81,9 +111,14 @@ class GameScreen(FloatLayout):
         # Ask the parent to close this widget.
         self.parent.command("close", screen_widget=self)
 
+
 class UISwitcherApp(App):
     def build(self):
-        return MainWindow()
+        screen_manager = MainWindow()
+        screen_manager.add_widget(TitleScreen(name="title_screen"))
+        screen_manager.add_widget(GameScreen(name="game_screen"))
+        screen_manager.current = 'title_screen'
+        return screen_manager
 
 if __name__ == '__main__':
     UISwitcherApp().run()
