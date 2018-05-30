@@ -7,7 +7,7 @@ TODO
 TODO
 ## Process an Unknown Command to raise an Exception
 TODO
-## Add Undo Command to reverse Exception
+## Add Undo Command to reverse.
 TODO
 
 # Managing Widgets

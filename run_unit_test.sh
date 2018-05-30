@@ -1,3 +1,3 @@
 pushd "$(dirname ${BASH_SOURCE[0]})"
-python3 -m unittest event/commands/tests.py
+python3 -m unittest event/command/tests.py
 popd
