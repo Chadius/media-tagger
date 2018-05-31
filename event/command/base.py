@@ -53,8 +53,8 @@ class CommandController(object):
         # A list of Command objects
         self.command_queue = []
 
-        # The most recently run command.
-        self.previously_executed_command = None
+        # The most recently run commands that can be undone.
+        self.undo_command_history = []
 
     def add_command(self, new_command):
         """Adds a Command to the queue.
@@ -86,9 +86,17 @@ class CommandController(object):
                 # If it did not start, then it means we don't recognize this command. Raise an Exception.
                 if not command.has_started():
                     raise UnknownCommandException("Base CommandController cannot handle commands of type {command_type}.".format(command_type=type(current_command)))
-            # If it finished, add it to the undo stack and mark the command for removal.
+
+            # If it finished, we need to manage the Undo stack.
             if command.has_finished():
-                self.previously_executed_command = command
+                # If the command can be undone, add it to the undo stack.
+                if command.is_undoable():
+                    self.undo_command_history.append(command)
+                else:
+                    # Otherwise this is a permanent action. Clear the undo buffer.
+                    self.undo_command_history.clear()
+
+                # mark the command for removal.
                 commands_to_delete.append(command)
         # Remove all commands in the queue.
         for command in commands_to_delete:
@@ -104,10 +112,9 @@ class CommandController(object):
         """Returns True if the previously executed command can be reverted.
         """
         # If there is no previous command, nothing can be undone.
-        if not self.previously_executed_command:
+        if len(self.undo_command_history) == 0:
             return False
-        # Ask the previous command if it can be undone.
-        return self.previously_executed_command.is_undoable()
+        return True
 
     def undo_last_command(self):
         """Revert the effects of the previously executed command.
@@ -124,7 +131,8 @@ class CommandController(object):
             return
 
         # Undo the last command.
-        self.previously_executed_command.undo()
+        undo_this_command = self.undo_command_history[-1]
+        undo_this_command.undo()
 
         # Now that you've undone the last command, remove it.
-        self.previously_executed_command = None
+        self.undo_command_history.remove(undo_this_command)

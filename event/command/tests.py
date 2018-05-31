@@ -35,6 +35,9 @@ class AddToStringCommand(Command):
         # The buffer that will be affected.
         self.payload = kwargs['payload']
 
+        # based on the Payload, declare if this can be undone or not. Defaults to True.
+        self.can_undo = kwargs.get('can_undo', True)
+
     def execute(self):
         """Add the payload to the buffer.
         """
@@ -50,7 +53,7 @@ class AddToStringCommand(Command):
     def is_undoable(self):
         """Returns True if this Command's effects can be reverted.
         """
-        return True
+        return self.can_undo
 
     def undo(self):
         """Reverse the effects of the execute command.
@@ -160,8 +163,8 @@ class CommandTest(TestCase):
         # Create an empty string buffer.
         string_buffer = StringActor()
 
-        # Create a new AddToStringCommand.
-        command1 = AddToStringCommand(actor=string_buffer, payload="A1")
+        # Create new AddToStringCommands. One of them cannot be undone.
+        command1 = AddToStringCommand(actor=string_buffer, payload="A1", can_undo=False)
         command2 = AddToStringCommand(actor=string_buffer, payload="B2")
 
         # Add the command to the controller.
@@ -188,3 +191,39 @@ class CommandTest(TestCase):
         # Try undoing anyway, nothing should happen
         controller.undo_last_command()
         self.assertEqual(string_buffer.buffer, "A1")
+
+    def test_undo_multiple_commands(self):
+        """Test that multiple commands can be undone.
+        """
+        # Create an empty string buffer.
+        string_buffer = StringActor()
+
+        # Create new AddToStringCommands. All can be undone.
+        command1 = AddToStringCommand(actor=string_buffer, payload="A1")
+        command2 = AddToStringCommand(actor=string_buffer, payload="B2")
+
+        # Add the command to the controller.
+        controller = StringCommandController()
+        controller.add_command(command1)
+        controller.add_command(command2)
+
+        # Activate the controller so it can process commands.
+        controller.process_commands()
+
+        # Check the controller's buffer, it should have the contents of the string.
+        self.assertEqual(string_buffer.buffer, "A1B2")
+
+        # Make sure you can undo the last command.
+        self.assertTrue(controller.can_undo_last_command())
+
+        # Undo the last command and make sure the buffer is fixed.
+        controller.undo_last_command()
+        self.assertEqual(string_buffer.buffer, "A1")
+
+        # Can you undo the last command? You should be able to.
+        self.assertTrue(controller.can_undo_last_command())
+
+        # Try undoing.
+        controller.undo_last_command()
+        self.assertEqual(string_buffer.buffer, "")
+
