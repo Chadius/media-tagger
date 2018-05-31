@@ -3,6 +3,7 @@ from unittest.mock import MagicMock
 
 from event.command.base import Command
 from event.command.base import CommandController
+from event.command.base import UnknownCommandException
 
 class StringActor(object):
     """The object the Commands should act upon.
@@ -87,15 +88,44 @@ class CommandTest(TestCase):
         # Check the controller's buffer, it should have the contents of the string.
         self.assertEqual(string_buffer.buffer, "A1")
 
-    def test_execute_command(self):
+    def test_execute_multiple_commands(self):
         """ After adding a command, execute it and make sure you can see its effects.
         """
-        pass
+        # Create an empty string buffer.
+        string_buffer = StringActor()
+
+        # Create a new AddToStringCommand.
+        command1 = AddToStringCommand(actor=string_buffer, payload="A1")
+        command2 = AddToStringCommand(actor=string_buffer, payload="B2")
+
+        # Add the command to the controller.
+        controller = StringCommandController()
+        controller.add_command(command1)
+        controller.add_command(command2)
+
+        # Activate the controller so it can process commands.
+        controller.process_commands()
+
+        # Check the controller's buffer, it should have the contents of the string.
+        self.assertEqual(string_buffer.buffer, "A1B2")
 
     def test_unknown_command(self):
         """ Process an Unknown Command to raise an Exception.
         """
-        pass
+        # Create an empty string buffer.
+        string_buffer = StringActor()
+
+        # Create a BogusCommand that won't be recognized.
+        new_command = BogusCommand(actor=string_buffer)
+
+        # Add the command to the controller.
+        controller = StringCommandController()
+        controller.add_command(new_command)
+
+        # Activate the controller so it can process commands. It should raise an exception.
+        with self.assertRaises(UnknownCommandException):
+            controller.process_commands()
+
 
     def test_undo_command(self):
         """ Some Commands can be undone.

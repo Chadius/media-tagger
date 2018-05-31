@@ -1,3 +1,6 @@
+class UnknownCommandException(Exception):
+    pass
+
 class Command(object):
     """Encapsulate an request that acts upon an object.
     """
@@ -21,7 +24,6 @@ class Command(object):
         """Returns True if the Command finished execution.
         """
         return self.finished_execution == True
-
     def execute(self):
         """Perform the command on the actor.
         """
@@ -65,14 +67,14 @@ class CommandController(object):
         # For each command in the queue,
         for command in self.command_queue:
             # Get the command and try to execute it unless it is already running.
-            if not current_command.has_started():
+            if not command.has_started():
                 self.handle_command(command)
                 # If it did not start, then it means we don't recognize this command. Raise an Exception.
-                if not current_command.has_started():
-                    raise Exception("Base CommandController cannot handle commands of type {command_type}.".format(command_type=type(current_command)))
+                if not command.has_started():
+                    raise UnknownCommandException("Base CommandController cannot handle commands of type {command_type}.".format(command_type=type(current_command)))
             # If it finished, mark the command for removal.
-            if current_command.has_finished():
-                commands_to_delete.append(current_command)
+            if command.has_finished():
+                commands_to_delete.append(command)
         # Remove all commands in the queue.
         for command in commands_to_delete:
             self.command_queue.remove(command)
