@@ -15,6 +15,17 @@ class StringActor(object):
     def append_string(self, string):
         self.buffer = self.buffer + string
 
+    def remove_string(self, string):
+        # Find the string in the buffer starting from the right side.
+        buffer_index = self.buffer.rfind(string)
+        # If it's not found, abort
+        if buffer_index == -1:
+            return
+        # Concatenate the part before the index and the part after the string.
+        string_before = self.buffer[:buffer_index]
+        string_after = self.buffer[buffer_index + len(string):]
+        self.buffer = string_before + string_after
+
 class AddToStringCommand(Command):
     """This command carries a pay load to add to the string.
     """
@@ -32,6 +43,23 @@ class AddToStringCommand(Command):
 
         # Execute
         self.actor.append_string(self.payload)
+
+        # Mark that you finished execution
+        self.finished_execution = True
+
+    def is_undoable(self):
+        """Returns True if this Command's effects can be reverted.
+        """
+        return True
+
+    def undo(self):
+        """Reverse the effects of the execute command.
+        """
+        # Mark that you started execution
+        self.started_execution = True
+
+        # Execute
+        self.actor.remove_string(self.payload)
 
         # Mark that you finished execution
         self.finished_execution = True
@@ -89,7 +117,7 @@ class CommandTest(TestCase):
         self.assertEqual(string_buffer.buffer, "A1")
 
     def test_execute_multiple_commands(self):
-        """ After adding a command, execute it and make sure you can see its effects.
+        """After adding a command, execute it and make sure you can see its effects.
         """
         # Create an empty string buffer.
         string_buffer = StringActor()
@@ -126,9 +154,37 @@ class CommandTest(TestCase):
         with self.assertRaises(UnknownCommandException):
             controller.process_commands()
 
-
     def test_undo_command(self):
         """ Some Commands can be undone.
         """
-        pass
+        # Create an empty string buffer.
+        string_buffer = StringActor()
 
+        # Create a new AddToStringCommand.
+        command1 = AddToStringCommand(actor=string_buffer, payload="A1")
+        command2 = AddToStringCommand(actor=string_buffer, payload="B2")
+
+        # Add the command to the controller.
+        controller = StringCommandController()
+        controller.add_command(command1)
+        controller.add_command(command2)
+
+        # Activate the controller so it can process commands.
+        controller.process_commands()
+
+        # Check the controller's buffer, it should have the contents of the string.
+        self.assertEqual(string_buffer.buffer, "A1B2")
+
+        # Make sure you can undo the last command.
+        self.assertTrue(controller.can_undo_last_command())
+
+        # Undo the last command and make sure the buffer is fixed.
+        controller.undo_last_command()
+        self.assertEqual(string_buffer.buffer, "A1")
+
+        # Can you undo the last command?
+        self.assertFalse(controller.can_undo_last_command())
+
+        # Try undoing anyway, nothing should happen
+        controller.undo_last_command()
+        self.assertEqual(string_buffer.buffer, "A1")

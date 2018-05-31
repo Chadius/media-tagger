@@ -24,14 +24,23 @@ class Command(object):
         """Returns True if the Command finished execution.
         """
         return self.finished_execution == True
+
     def execute(self):
         """Perform the command on the actor.
         """
         self.started_execution = True
 
+    def is_undoable(self):
+        """Returns True if this Command's effects can be reverted.
+
+        The base Command returns False;
+        """
+        return False
+
     def undo(self):
         """Reverse the effects of the execute command.
         """
+        # The base command does nothing, so that's easy to undo.
         pass
 
 class CommandController(object):
@@ -43,6 +52,9 @@ class CommandController(object):
 
         # A list of Command objects
         self.command_queue = []
+
+        # The most recently run command.
+        self.previously_executed_command = None
 
     def add_command(self, new_command):
         """Adds a Command to the queue.
@@ -57,8 +69,10 @@ class CommandController(object):
             return
 
         # If the current command has started but not finished, wait for it to finish.
-        current_command = self.command_queue[0]
-        if current_command.has_started() and not current_command.has_finished():
+        current_command = None
+        if len(self.command_queue) > 0:
+            current_command = self.command_queue[0]
+        if current_command and current_command.has_started() and not current_command.has_finished():
             return
 
         # Collect a list to remove after execution.
@@ -72,8 +86,9 @@ class CommandController(object):
                 # If it did not start, then it means we don't recognize this command. Raise an Exception.
                 if not command.has_started():
                     raise UnknownCommandException("Base CommandController cannot handle commands of type {command_type}.".format(command_type=type(current_command)))
-            # If it finished, mark the command for removal.
+            # If it finished, add it to the undo stack and mark the command for removal.
             if command.has_finished():
+                self.previously_executed_command = command
                 commands_to_delete.append(command)
         # Remove all commands in the queue.
         for command in commands_to_delete:
@@ -84,3 +99,32 @@ class CommandController(object):
         They should mark the command has started execution.
         """
         pass
+
+    def can_undo_last_command(self):
+        """Returns True if the previously executed command can be reverted.
+        """
+        # If there is no previous command, nothing can be undone.
+        if not self.previously_executed_command:
+            return False
+        # Ask the previous command if it can be undone.
+        return self.previously_executed_command.is_undoable()
+
+    def undo_last_command(self):
+        """Revert the effects of the previously executed command.
+        """
+        # Make sure you can undo the last command.
+        if not self.can_undo_last_command():
+            return
+
+        # Make sure you are not in mid execution.
+        current_command = None
+        if len(self.command_queue) > 0:
+            current_command = self.command_queue[0]
+        if current_command and current_command.has_started() and not current_command.has_finished():
+            return
+
+        # Undo the last command.
+        self.previously_executed_command.undo()
+
+        # Now that you've undone the last command, remove it.
+        self.previously_executed_command = None
