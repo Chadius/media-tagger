@@ -1,15 +1,3 @@
-# Command Manager Unit tests
-Create a AddToStringCommand that staples stuff to a buffer command
-Create a StringCommandController that has a string as state and processes AddToStringCommand
-## Add a Command
-TODO
-## Process a Command
-TODO
-## Process an Unknown Command to raise an Exception
-TODO
-## Add Undo Command to reverse.
-TODO
-
 # Managing Widgets
 TODO
 ## Animate Widgets
