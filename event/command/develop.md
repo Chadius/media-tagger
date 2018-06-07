@@ -46,4 +46,4 @@ Returns True if the previously executed Command can be undone.
 If no Commands have been executed, this returns False.
 ### undo_last_command(self)
 Call this function to undo the last executed Command.
-The CommandController can keep 
+You can call this multiple times to undo the previous executed Command. If a command cannot be undone, executing this will clear the history.
