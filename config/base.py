@@ -17,24 +17,33 @@ class BaseSettingsModel(object):
         # Set to default.
         self.initialize_settings()
 
+    def _get_name_to_function_mapping(self):
+        """ This stores a dict of setting names to the function that manages them.
+        Subclass this function to add or remove entries.
+        """
+        return {
+            'fullscreen': self._fullscreen
+        }
+
     def initialize_settings(self):
         """Resets settings.
         """
-        self._fullscreen('initialize')
+        function_by_name = self._get_name_to_function_mapping()
+        for setting_name, setting_function in function_by_name.items():
+            setting_function('initialize')
 
     def reset_settings(self):
         """Resets settings.
         """
-        self._fullscreen('reset')
+        function_by_name = self._get_name_to_function_mapping()
+        for setting_name, setting_function in function_by_name.items():
+            setting_function('reset')
 
     def set_pending(self, name, value):
         """Tries to mark a settings change as penidng.
         Use apply_pending_changes() to permanently set it.
         """
-        function_by_name = {
-            'fullscreen': self._fullscreen
-        }
-
+        function_by_name = self._get_name_to_function_mapping()
         try:
             function_by_name[name]('set_pending_value', value)
         except KeyError:
@@ -43,14 +52,14 @@ class BaseSettingsModel(object):
     def apply_pending_changes(self):
         """Applies all penidng changes.
         """
-        self._fullscreen("apply_penidng_value")
+        function_by_name = self._get_name_to_function_mapping()
+        for setting_name, setting_function in function_by_name.items():
+            setting_function("apply_penidng_value")
 
     def get(self, name):
         """Returns the value of the given setting, or None if it's not set/ name isn't found.
         """
-        function_by_name = {
-            'fullscreen': self._fullscreen
-        }
+        function_by_name = self._get_name_to_function_mapping()
 
         try:
             return function_by_name[name]('get_current_value')
@@ -60,9 +69,20 @@ class BaseSettingsModel(object):
     def get_pending_changes(self):
         """Returns a dict containing all pending changes.
         """
-        return {
-            'fullscreen': self._fullscreen('get_pending_value'),
-        }
+        function_by_name = self._get_name_to_function_mapping()
+
+        pending_values = {}
+
+        for setting_name, setting_function in function_by_name.items():
+            pending_values[setting_name] = setting_function('get_pending_value')
+
+        return pending_values
+
+    def apply_changes_hook(self, setting_name, current_value, pending_value):
+        """Perform any behavior before settings changes are applied.
+        For example, a graphics card would actually change the resolution based on the pending change.
+        """
+        pass
 
     def _fullscreen(self, action, value=None):
         """Modify fullscreen.
@@ -90,6 +110,8 @@ class BaseSettingsModel(object):
             return
 
         if action == "apply_penidng_value":
+            self.apply_changes_hook('fullscreen', self.all_values["fullscreen"], self.pending_changes["fullscreen"])
             # Copy the pending changes over.
             self.all_values["fullscreen"] = self.pending_changes["fullscreen"]
             self.pending_changes["fullscreen"] = None
+
