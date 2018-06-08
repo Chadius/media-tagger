@@ -1,5 +1,7 @@
 """Config: This object tracks user settings (resolution, keybindings, audio, etc.)
 """
+class UnknownSettingException(Exception):
+    pass
 
 class BaseSettingsModel(object):
     """This stores per-OS settings.
@@ -25,7 +27,7 @@ class BaseSettingsModel(object):
         """
         self._fullscreen('reset')
 
-    def set(self, name, value):
+    def set_pending(self, name, value):
         """Tries to mark a settings change as penidng.
         Use apply_pending_changes() to permanently set it.
         """
@@ -36,7 +38,7 @@ class BaseSettingsModel(object):
         try:
             function_by_name[name]('set_pending_value', value)
         except KeyError:
-            print ("Unknown setting: {setting_name}".format(setting_name=name))
+            raise UnknownSettingException("Unknown setting: {setting_name}".format(setting_name=name))
 
     def apply_pending_changes(self):
         """Applies all penidng changes.
@@ -51,10 +53,9 @@ class BaseSettingsModel(object):
         }
 
         try:
-            return function_by_name[name]('get')
+            return function_by_name[name]('get_current_value')
         except KeyError:
-            print ("Unknown setting: {setting_name}".format(setting_name=name))
-            return None
+            raise UnknownSettingException("Unknown setting: {setting_name}".format(setting_name=name))
 
     def get_pending_changes(self):
         """Returns a dict containing all pending changes.
