@@ -21,6 +21,45 @@ class TestSettingsModel(BaseSettingsModel):
         stored_settings = eval(self.storage)
         super().load_settings(stored_settings)
 
+    def _get_name_to_function_mapping(self):
+        """ This stores a dict of setting names to the function that manages them.
+        Subclass this function to add or remove entries.
+        """
+        return {
+            'fullscreen': self._fullscreen
+        }
+
+    def _fullscreen(self, action, value=None):
+        """Modify fullscreen.
+        Override this function when it's time to apply the changes.
+        """
+
+        if action == "initialize":
+            self.all_values["fullscreen"] = False
+            self.pending_changes["fullscreen"] = False
+
+        if action == "reset":
+            self.all_values["fullscreen"] = False
+
+        if action == "get_current_value":
+            return self.all_values["fullscreen"]
+
+        if action == "get_pending_value":
+            return self.pending_changes["fullscreen"]
+
+        if action == "set_pending_value":
+            if value:
+                self.pending_changes["fullscreen"] = True
+            else:
+                self.pending_changes["fullscreen"] = False
+            return
+
+        if action == "apply_penidng_value":
+            self.apply_changes_hook('fullscreen', self.all_values["fullscreen"], self.pending_changes["fullscreen"])
+            # Copy the pending changes over.
+            self.all_values["fullscreen"] = self.pending_changes["fullscreen"]
+            self.pending_changes["fullscreen"] = None
+
 class SettingsModelTest(TestCase):
     """Checks that you can load and save settings.
     """

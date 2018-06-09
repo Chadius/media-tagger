@@ -21,9 +21,7 @@ class BaseSettingsModel(object):
         """ This stores a dict of setting names to the function that manages them.
         Subclass this function to add or remove entries.
         """
-        return {
-            'fullscreen': self._fullscreen
-        }
+        return {}
 
     def initialize_settings(self):
         """Resets settings.
@@ -96,37 +94,6 @@ class BaseSettingsModel(object):
         """
         pass
 
-    def _fullscreen(self, action, value=None):
-        """Modify fullscreen.
-        Override this function when it's time to apply the changes.
-        """
-
-        if action == "initialize":
-            self.all_values["fullscreen"] = False
-            self.pending_changes["fullscreen"] = False
-
-        if action == "reset":
-            self.all_values["fullscreen"] = False
-
-        if action == "get_current_value":
-            return self.all_values["fullscreen"]
-
-        if action == "get_pending_value":
-            return self.pending_changes["fullscreen"]
-
-        if action == "set_pending_value":
-            if value:
-                self.pending_changes["fullscreen"] = True
-            else:
-                self.pending_changes["fullscreen"] = False
-            return
-
-        if action == "apply_penidng_value":
-            self.apply_changes_hook('fullscreen', self.all_values["fullscreen"], self.pending_changes["fullscreen"])
-            # Copy the pending changes over.
-            self.all_values["fullscreen"] = self.pending_changes["fullscreen"]
-            self.pending_changes["fullscreen"] = None
-
     def save_settings(self):
         """Save the settings to external storage.
         Override this function to implement some kind of saving mechanism.
@@ -147,4 +114,3 @@ class BaseSettingsModel(object):
 
         # Apply the pending value
         self.apply_pending_changes()
-
