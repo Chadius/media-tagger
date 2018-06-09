@@ -7,7 +7,19 @@ from config.base import UnknownSettingException
 class TestSettingsModel(BaseSettingsModel):
     """This will use text to save to and from.
     """
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(self, *args, **kwargs)
+        # A text storage
+        self.storage = ""
+
+    def save_settings(self):
+        """Turn the settings into a string.
+        """
+        self.storage = str(self.get_current_values())
+
+    def load_settings(self):
+        stored_settings = eval(self.storage)
+        super().load_settings(stored_settings)
 
 class SettingsModelTest(TestCase):
     """Checks that you can load and save settings.
@@ -61,9 +73,34 @@ class SettingsModelTest(TestCase):
     def test_save_settings(self):
         """Confirm you can save settings to a permanent storage.
         """
-        pass
+        # Set and apply the settings.
+        self.settings.set_pending("fullscreen", True)
+        self.settings.apply_pending_changes()
+        self.assertTrue(self.settings.get("fullscreen"))
+
+        # Save the settings.
+        self.settings.save_settings()
+
+        # Confirm the storage has changed.
+        stored_settings = eval(self.settings.storage)
+        self.assertTrue(stored_settings["fullscreen"])
 
     def test_load_settings(self):
         """Confirm you can load settings from a permanent storage.
         """
-        pass
+        # Set and apply settings.
+        self.settings.set_pending("fullscreen", True)
+        self.settings.apply_pending_changes()
+        self.assertTrue(self.settings.get("fullscreen"))
+
+        # Save the settings.
+        self.settings.save_settings()
+
+        # Change the settings to something else.
+        self.settings.set_pending("fullscreen", False)
+        self.settings.apply_pending_changes()
+        self.assertFalse(self.settings.get("fullscreen"))
+
+        # Load the settings and confirm the value changed to what was saved.
+        self.settings.load_settings()
+        self.assertTrue(self.settings.get("fullscreen"))

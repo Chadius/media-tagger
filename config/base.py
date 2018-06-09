@@ -66,6 +66,18 @@ class BaseSettingsModel(object):
         except KeyError:
             raise UnknownSettingException("Unknown setting: {setting_name}".format(setting_name=name))
 
+    def get_current_values(self):
+        """Returns a dict containing all current values.
+        """
+        function_by_name = self._get_name_to_function_mapping()
+
+        current_values = {}
+
+        for setting_name, setting_function in function_by_name.items():
+            current_values[setting_name] = setting_function('get_current_value')
+
+        return current_values
+
     def get_pending_changes(self):
         """Returns a dict containing all pending changes.
         """
@@ -114,4 +126,25 @@ class BaseSettingsModel(object):
             # Copy the pending changes over.
             self.all_values["fullscreen"] = self.pending_changes["fullscreen"]
             self.pending_changes["fullscreen"] = None
+
+    def save_settings(self):
+        """Save the settings to external storage.
+        Override this function to implement some kind of saving mechanism.
+        """
+        pass
+
+    def load_settings(self, new_settings_dict):
+        """Given a dictionary, set and apply all of the settings in the dictionary.
+        Override this function if you need to open a file-like object or interpret data differently.
+        """
+        function_by_name = self._get_name_to_function_mapping()
+
+        for setting_name, new_value in new_settings_dict.items():
+            # If the setting name is in the function by name
+            if setting_name in function_by_name:
+                # Set the pending value
+                self.set_pending(setting_name, new_value)
+
+        # Apply the pending value
+        self.apply_pending_changes()
 
