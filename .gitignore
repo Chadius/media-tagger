@@ -1,6 +1,9 @@
 *~
 *.pyc
 
+# Configuration files will be ignored
+settings.ini
+
 # virtualenv files should be ignored
 venv/
 
