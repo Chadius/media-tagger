@@ -1,51 +1,84 @@
 from kivy.config import Config
 
-class KivyGraphicsSettings:
-     """This class handles all of the graphics config settings.
-     """
+class KivyGraphicsSettings(object):
+    """This class handles all of the graphics config settings.
+    """
 
-     def __init__(self, *args, **kwargs):
-         self.load_settings(**kwargs)
-         self.apply_settings()
+    def __init__(self, *args, **kwargs):
+        self.load_settings(**kwargs)
+        self.apply_settings()
 
-     def load_settings(self, **kwargs):
-         """Load graphics configuration settings. Does not actually apply settings.
-         filename - optional string argument. This will try to open the file with that filename instead.
-         file - optional file-like object argument. This will try to use the file-like object as the configuration file.
+    def load_settings(self, **kwargs):
+        """Load graphics configuration settings. Does not actually apply settings.
+        filename - optional string argument. This will try to open the file with that filename instead.
 
-         If neither argument is used, the function will use the built-in Kivy configuration (or default values if it can't be found.)
-         """
-         # TODO: need research config
-         #self.temp_fullscreen = something.load(graphics, fullscreen)
-         pass
+        If no argument is used, the function will use the built-in Kivy configuration (or default values if it can't be found.)
+        """
 
-     def save_settings(self, **kwargs):
-         """Saves the current graphics configuration settings.
-         filename - optional string argument. This will try to open the file with that filename instead.
-         file - optional file-like object argument. This will try to use the file-like object as the configuration file.
+        # Open the config file for reading.
+        self.config_filename = kwargs.get('filename', None) # TODO replace with default config file.
 
-         If neither argument is used, the function will use the built-in Kivy configuration.
-         """
+        if self.config_filename:
+            Config.read(self.config_filename)
 
-         #TODO: research Kivy configuration to figure out how this works.
+        # If a file wasn't used, use Kivy's Config object, or use a default if it isn't found.
+        self.temporary_fullscreen = Config.getdefault('graphics', 'fullscreen', 'auto')
 
-         #something.save(graphics, fullscreen, self.temporary_fullscreen)
-         pass
+    def save_settings(self, **kwargs):
+        """Saves the current graphics configuration settings, if a file was provided.
+        """
 
-     def apply_settings(self):
-         """After loading the settings, this will actually apply the changes.
-         This will affect settings.
-         """
-         #from kivy.core.window import Window
-         #TODO: research to these graphics settings and then apply them here.
-         pass
+        #TODO: research Kivy configuration to figure out how this works.
 
-     def change_settings(self, setting_name, value):
-         """Changes the giving setting name to the given value.
-         """
-         pass
+        #something.save(graphics, fullscreen, self.temporary_fullscreen)
 
-     def get_setting(self, setting_name):
-         """Returns the value for the given setting.
-         """
-         pass
+        # For each setting name & value, set it
+        value_by_name = self._get_setting_name_to_field()
+
+        Config.set('graphics', 'fullscreen', self.__dict__[ value_by_name['fullscreen'] ])
+
+        # Write the to config file, if given.
+        if self.config_filename:
+            Config.write()
+
+    def apply_settings(self):
+        """After loading the settings, this will actually apply the changes.
+        This will affect settings.
+        """
+        #from kivy.core.window import Window
+        #TODO: research to these graphics settings and then apply them here.
+        pass
+
+    def _get_setting_name_to_field(self):
+        """Returns a dictionary assigning public-facing setting names to class field.
+        """
+        setting_name_to_field = {
+            'fullscreen' : 'temporary_fullscreen',
+        }
+
+        # Make sure every field is actually present in the object.
+        for field in setting_name_to_field.values():
+            val = vars(self)[field]
+
+        return setting_name_to_field
+
+    def change_settings(self, setting_name, value):
+        """Changes the giving setting name to the given value.
+        """
+
+        # Find out which field the setting will change.
+        value_by_name = self._get_setting_name_to_field()
+        field_name = value_by_name[setting_name]
+
+        # Set that field.
+        self.__dict__[field_name] = value
+
+    def get_setting(self, setting_name):
+        """Returns the value for the given setting.
+        """
+        # Find out which field the setting will change.
+        value_by_name = self._get_setting_name_to_field()
+        field_name = value_by_name[setting_name]
+
+        # Get that field.
+        return self.__dict__[field_name]
