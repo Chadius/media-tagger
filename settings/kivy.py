@@ -1,7 +1,7 @@
 from kivy.config import Config
 
-class KivyGraphicsSettings(object):
-    """This class handles all of the graphics config settings.
+class KivySettings(object):
+    """This class handles all of the Kivy-specific config settings.
     """
 
     def __init__(self, *args, **kwargs):
@@ -16,7 +16,7 @@ class KivyGraphicsSettings(object):
         """
 
         # Open the config file for reading.
-        self.config_filename = kwargs.get('filename', None) # TODO replace with default config file.
+        self.config_filename = kwargs.get('filename', None)
 
         if self.config_filename:
             Config.read(self.config_filename)
@@ -27,10 +27,6 @@ class KivyGraphicsSettings(object):
     def save_settings(self, **kwargs):
         """Saves the current graphics configuration settings, if a file was provided.
         """
-
-        #TODO: research Kivy configuration to figure out how this works.
-
-        #something.save(graphics, fullscreen, self.temporary_fullscreen)
 
         # For each setting name & value, set it
         value_by_name = self._get_setting_name_to_field()

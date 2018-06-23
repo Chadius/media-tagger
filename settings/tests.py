@@ -3,9 +3,9 @@ import os
 from unittest import TestCase
 from unittest.mock import MagicMock
 
-from config.models import KivyGraphicsSettings
+from settings.kivy import KivySettings
 
-class KivyGraphicsSettingsTest(TestCase):
+class KivySettingsTest(TestCase):
     def setUp(self):
         """Make a temporary file during testing.
         """
@@ -24,7 +24,7 @@ class KivyGraphicsSettingsTest(TestCase):
         """Create activity settings config. Do not apply settings.
         Make sure defaults are set.
         """
-        settings = KivyGraphicsSettings(apply_settings=False, filename=self.config_filename)
+        settings = KivySettings(apply_settings=False, filename=self.config_filename)
 
         fullscreen = settings.get_setting('fullscreen')
         self.assertTrue(fullscreen)
@@ -41,7 +41,7 @@ class KivyGraphicsSettingsTest(TestCase):
                     "[graphics]\n",
                     "fullscreen = 0\n",
                 ])
-            settings = KivyGraphicsSettings(apply_settings=False, filename=new_config_filename)
+            settings = KivySettings(apply_settings=False, filename=new_config_filename)
 
             fullscreen = settings.get_setting('fullscreen')
             self.assertEqual('0', fullscreen)
@@ -58,7 +58,7 @@ class KivyGraphicsSettingsTest(TestCase):
         Change one of the settings
         make sure the setting has been changed.
         """
-        settings = KivyGraphicsSettings(apply_settings=False, filename=self.config_filename)
+        settings = KivySettings(apply_settings=False, filename=self.config_filename)
 
         original_fullscreen = settings.get_setting('fullscreen')
         if original_fullscreen == 'auto':
@@ -74,7 +74,7 @@ class KivyGraphicsSettingsTest(TestCase):
         Make sure the settings file has new settings.
         """
 
-        settings = KivyGraphicsSettings(apply_settings=False, filename=self.config_filename)
+        settings = KivySettings(apply_settings=False, filename=self.config_filename)
 
         original_fullscreen = settings.get_setting('fullscreen')
         if original_fullscreen == 'auto':

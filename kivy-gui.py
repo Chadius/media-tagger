@@ -10,7 +10,7 @@ from kivy.uix.screenmanager import FadeTransition
 from kivy.uix.screenmanager import Screen
 from kivy.uix.screenmanager import ScreenManager
 
-from config.models import KivyGraphicsSettings
+from settings.kivy import KivySettings
 from event.command.scene import SceneChangeCommand
 from event.command.scene import SceneChangeController
 
@@ -80,7 +80,7 @@ class UISwitcherApp(App):
 
 if __name__ == '__main__':
     # First set up graphics settings.
-    settings = KivyGraphicsSettings(filename="settings.ini")
+    settings = KivySettings(filename="user/settings.ini")
 
     UISwitcherApp().run()
 
