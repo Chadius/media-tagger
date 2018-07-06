@@ -14,6 +14,8 @@ from settings.kivy import KivySettings
 from event.command.scene import SceneChangeCommand
 from event.command.scene import SceneChangeController
 
+from game import GameScreen
+
 class MainWindow(ScreenManager):
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
@@ -59,16 +61,6 @@ class TitleScreen(Screen):
         # Ask the parent to switch to the Game screen
         self.parent.change_scene("game_screen")
 
-class GameScreen(Screen):
-    def __init__(self, *args, **kwargs):
-        super().__init__(**kwargs)
-
-    def switch_to_title_screen(self):
-        """Close this widget and open the Title Screen.
-        """
-
-        # Ask the parent to switch to the Game screen
-        self.parent.change_scene("title_screen")
 
 class UISwitcherApp(App):
     def build(self):
