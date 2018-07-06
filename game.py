@@ -39,7 +39,23 @@ class GameScreen(Screen):
         if not self.parent:
             return
 
-        # Draw a box
-        with self.canvas:
-            Color(1.0, 0.0, 0.0)
-            Rectangle(pos=(740,20), size=(70, 220))
+        mapX = 100
+        mapY = 200
+
+        # Draw a box before drawing gui elements
+        with self.canvas.before:
+            for y in range(5):
+                if y % 2 == 1:
+                    offset = 25
+                else:
+                    offset = 0
+                for x in range(5):
+                    self.draw_tile(mapX + offset + x * 50, mapY + y * 50)
+
+    def draw_tile(self, x, y):
+        """Draw a tile at given the location.
+        """
+        Color(0.2, 0.2, 0.2)
+        Rectangle(pos=(x,y), size=(50, 50))
+        Color(1.0, 0.0, 0.0)
+        Rectangle(pos=(x+1,y+1), size=(48, 48))
