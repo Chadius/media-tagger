@@ -1,4 +1,5 @@
 from functools import partial
+import subprocess
 
 import kivy
 kivy.require('1.10.0')
@@ -13,8 +14,6 @@ from kivy.uix.screenmanager import ScreenManager
 from settings.kivy import KivySettings
 from event.command.scene import SceneChangeCommand
 from event.command.scene import SceneChangeController
-
-from game import GameScreen
 
 class MainWindow(ScreenManager):
     def __init__(self, *args, **kwargs):
@@ -50,24 +49,31 @@ class MainWindow(ScreenManager):
         # Process all scene change commands.
         self.scene_change_controller.process_commands()
 
-class TitleScreen(Screen):
+class ManageTagScreen(Screen):
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
 
-    def switch_to_game_screen(self):
-        """Close this widget and open the Game Screen.
+    def play_video(self):
+        """Ask MPlayer to play the video.
         """
-
-        # Ask the parent to switch to the Game screen
-        self.parent.change_scene("game_screen")
-
+        subprocess.run(["ls", "-l"])
+        subprocess.run(
+            [
+                "mplayer",
+                "/Users/Shared/Adobe/Premiere Pro/12.0/Tutorial/Going Home project/Footage/A001_C037_0921FG_001.mp4",
+                "-idle",
+                "-fixed-vo",
+                "-osdlevel", "3",
+                "-geometry", "10%:10%",
+            ]
+        )
+        pass
 
 class UISwitcherApp(App):
     def build(self):
         screen_manager = MainWindow(transition=FadeTransition())
-        screen_manager.add_widget(TitleScreen(name="title_screen"))
-        screen_manager.add_widget(GameScreen(name="game_screen"))
-        screen_manager.current = 'title_screen'
+        screen_manager.add_widget(ManageTagScreen(name="manage_tag"))
+        screen_manager.current = 'manage_tag'
         return screen_manager
 
 if __name__ == '__main__':
